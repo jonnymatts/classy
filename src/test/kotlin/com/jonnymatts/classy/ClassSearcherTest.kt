@@ -9,9 +9,9 @@ class ClassSearcherTest {
     fun findClassesForPackageReturnsListOfClassInfo() {
         val classSearcher: ClassSearcher = ClassSearcher()
 
-        val got: List<ClassInfo> = classSearcher.findClassesForPackage("javax.security")
+        val got: List<ClassInfo> = classSearcher.findClassesForPackage("com.jonnymatts.classy")
 
-        assertThat(got).hasSize(37)
-        assertThat(got).contains(ClassInfo("Certificate", "javax.security.cert"))
+        assertThat(got).hasSize(9)
+        assertThat(got).contains(ClassInfo("ClassSearcher", "com.jonnymatts.classy"))
     }
 }

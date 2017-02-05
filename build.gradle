@@ -1,6 +1,3 @@
-group 'com.jonnymatts'
-version '1.0-SNAPSHOT'
-
 buildscript {
     ext.kotlin_version = '1.0.5'
 
@@ -12,7 +9,16 @@ buildscript {
     }
 }
 
-apply plugin: 'kotlin'
+ext {
+    kotlin_version = '1.0.5'
+    pippo_version = '1.1.0'
+}
+
+apply plugin: "kotlin"
+apply plugin: "idea"
+
+group 'com.jonnymatts'
+version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
@@ -20,9 +26,15 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile group: 'org.reflections', name: 'reflections', version: '0.9.10'
+    compile group: 'com.google.guava', name: 'guava', version: '21.0'
+    compile group: 'ro.pippo', name: 'pippo-core', version: pippo_version
+    compile group: 'ro.pippo', name: 'pippo-jetty', version: pippo_version
+    compile group: 'ro.pippo', name: 'pippo-jackson', version: pippo_version
+    compile group: 'com.fasterxml.jackson.module', name: 'jackson-module-kotlin', version: '2.8.4'
+    compile group: 'io.github.jupf.staticlog', name: 'staticlog', version: '2.1.8'
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.assertj', name: 'assertj-core', version: '3.5.2'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.6.8'
-    testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+    testCompile group: 'ro.pippo', name: 'pippo-test', version: '1.1.0'
 }

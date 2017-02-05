@@ -1,24 +1,16 @@
 package com.jonnymatts.classy
 
-import org.reflections.Reflections
-import org.reflections.scanners.SubTypesScanner
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.google.common.reflect.ClassPath
 
 class ClassSearcher {
 
     fun findClassesForPackage(packageName: String): List<ClassInfo> {
-        val reflections: Reflections = Reflections(packageName, SubTypesScanner(false))
-        val classNames: MutableSet<String> = reflections.allTypes
-        return classNames
-                .filter{!it.contains("$")}
-                .map{createClassInfo(it)}
-    }
-
-    private fun createClassInfo(classNameWithPackage: String): ClassInfo {
-        val split: List<String> = classNameWithPackage.split(".")
-        val className: String = split.last()
-        val packageName: String = split.minus(className).joinToString(".")
-        return ClassInfo(className, packageName)
+        val classLoader = Thread.currentThread().contextClassLoader
+        val classPath: ClassPath = ClassPath.from(classLoader)
+        val classNames = classPath.getTopLevelClassesRecursive(packageName)
+        return classNames.map{it -> ClassInfo(it.simpleName, it.packageName)}
     }
 }
 
-data class ClassInfo(val name: String, val fromPackage: String)
+data class ClassInfo(val name: String, @JsonProperty("package") val fromPackage: String)
