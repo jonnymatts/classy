@@ -11,9 +11,15 @@ import ro.pippo.test.PippoTest
 class PippoApplicationTest : PippoTest() {
 
     companion object PippoApplicationTest {
+
+        val loadedClasses: List<ClassInfo> = listOf(
+            ClassInfo("Blah","com.jonnymatts.classy"),
+            ClassInfo("Foo","com.jonnymatts.classy")
+        )
+
         @JvmField
         @ClassRule
-        val pippoRule = PippoRule(PippoApplication(ClassSearcher(), Randomizer()))
+        val pippoRule = PippoRule(PippoApplication(loadedClasses, Randomizer()))
     }
 
     @Test
@@ -26,7 +32,7 @@ class PippoApplicationTest : PippoTest() {
                 .statusCode(200)
                 .contentType(ContentType.JSON)
                 .body("package", equalTo("com.jonnymatts.classy"))
-                .body("name", isA(String::class.java))
+                .body("name", isOneOf("Blah", "Foo"))
     }
 
     @Test

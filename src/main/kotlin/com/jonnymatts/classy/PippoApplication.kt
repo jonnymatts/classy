@@ -5,7 +5,7 @@ import ro.pippo.core.ParameterValue
 import ro.pippo.core.Response
 import ro.pippo.core.route.RouteContext
 
-class PippoApplication(val classSearcher: ClassSearcher, val randomizer: Randomizer) : Application() {
+class PippoApplication(val loadedClasses: List<ClassInfo>, val randomizer: Randomizer) : Application() {
 
     override fun onInit() {
         registerKotlinContentEngine()
@@ -16,9 +16,9 @@ class PippoApplication(val classSearcher: ClassSearcher, val randomizer: Randomi
         val queryParams: Map<String, ParameterValue> = routeContext.request.parameters
         val packageParam: ParameterValue? = queryParams["package"]
         val packages: List<String> = packageParam?.values?.toList() ?: emptyList()
-        val classes: List<ClassInfo> = packages.flatMap { it -> classSearcher.findClassesForPackage(it) }
+        val classes: List<ClassInfo> = packages.flatMap { packageName -> loadedClasses.filter { it.fromPackage.startsWith(packageName) } }
         if(classes.isEmpty()) {
-            sendResponse(routeContext, 400, ErrorResponse("No classes found for packages ${packages}"))
+            sendResponse(routeContext, 400, ErrorResponse("No classes found for packages $packages"))
         } else {
             val randomClass: ClassInfo = randomizer.randomEntry(classes)
             sendResponse(routeContext, 200, randomClass)
