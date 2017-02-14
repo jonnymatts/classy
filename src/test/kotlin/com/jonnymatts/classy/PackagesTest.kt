@@ -5,6 +5,23 @@ import org.junit.Test
 
 class PackagesTest {
 
+    val defaultPackage: Package =
+            Package(
+                    "com",
+                    mutableListOf(
+                            Package("jonnymatts",
+                                    mutableListOf(
+                                            Package("classy",
+                                                    mutableListOf(),
+                                                    mutableListOf("Blah")
+                                            )
+                                    ),
+                                    mutableListOf()
+                            )
+                    ),
+                    mutableListOf()
+            )
+
     @Test
     fun addReturnsPackagesWithNewPackageAdded() {
         val packages: Packages = Packages(mutableListOf())
@@ -15,43 +32,13 @@ class PackagesTest {
 
         assertThat(packageList).hasSize(1)
         assertThat(packageList).containsExactly(
-                Package("com",
-                        listOf(
-                                Package("jonnymatts",
-                                        listOf(
-                                                Package("classy",
-                                                        emptyList(),
-                                                        listOf("Blah")
-                                                )
-                                        ),
-                                        emptyList()
-                                )
-                        ),
-                        emptyList()
-                )
-        )
+                defaultPackage)
     }
 
     @Test
     fun addReturnsPackagesWithNewClassAddedToExistingPackage() {
-        val currentPackages: MutableList<Package> = mutableListOf(
-                Package("com",
-                        listOf(
-                                Package("jonnymatts",
-                                        listOf(
-                                                Package("classy",
-                                                        emptyList(),
-                                                        listOf("Blah")
-                                                )
-                                        ),
-                                        emptyList()
-                                )
-                        ),
-                        emptyList()
-                )
-        )
 
-        val packages: Packages = Packages(currentPackages)
+        val packages: Packages = Packages(mutableListOf(defaultPackage))
 
         val got: Packages = packages.add("com/jonnymatts/classy/Foo")
 
@@ -60,19 +47,73 @@ class PackagesTest {
         assertThat(packageList).hasSize(1)
         assertThat(packageList).containsExactly(
                 Package("com",
-                        listOf(
+                        mutableListOf(
                                 Package("jonnymatts",
-                                        listOf(
+                                        mutableListOf(
                                                 Package("classy",
-                                                        emptyList(),
-                                                        listOf("Blah", "Foo")
+                                                        mutableListOf(),
+                                                        mutableListOf("Blah", "Foo")
                                                 )
                                         ),
-                                        emptyList()
+                                        mutableListOf()
                                 )
                         ),
-                        emptyList()
+                        mutableListOf()
                 )
         )
+    }
+    @Test
+    fun addReturnsPackagesWithNewClassAddedToParentPackageOfExistingPackage() {
+        val packages: Packages = Packages(mutableListOf(defaultPackage))
+
+        val got: Packages = packages.add("com/jonnymatts/Foo")
+
+        val packageList: MutableList<Package> = got.packages
+
+        assertThat(packageList).hasSize(1)
+        assertThat(packageList).containsExactly(
+                Package("com",
+                        mutableListOf(
+                                Package("jonnymatts",
+                                        mutableListOf(
+                                                Package("classy",
+                                                        mutableListOf(),
+                                                        mutableListOf("Blah")
+                                                )
+                                        ),
+                                        mutableListOf("Foo")
+                                )
+                        ),
+                        mutableListOf()
+                )
+        )
+    }
+
+    @Test
+    fun getClassesForPackageReturnsListOfClassNamesIfPresent() {
+        val packages: Packages = Packages(mutableListOf(defaultPackage))
+
+        val got: List<String> = packages.getClassesForPackage("com.jonnymatts.classy")
+
+        assertThat(got).hasSize(1)
+        assertThat(got).containsExactly("Blah")
+    }
+
+    @Test
+    fun getClassesForPackageReturnsEmptyListIfPackageIsNotFound() {
+        val packages: Packages = Packages(mutableListOf(defaultPackage))
+
+        val got: List<String> = packages.getClassesForPackage("com.blah")
+
+        assertThat(got).isEmpty()
+    }
+
+    @Test
+    fun getClassesForPackageReturnsEmptyListIfNoClassesArePresentForPackage() {
+        val packages: Packages = Packages(mutableListOf(defaultPackage))
+
+        val got: List<String> = packages.getClassesForPackage("com.jonnymatts")
+
+        assertThat(got).isEmpty()
     }
 }

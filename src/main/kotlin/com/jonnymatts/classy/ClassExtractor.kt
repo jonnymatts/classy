@@ -22,5 +22,3 @@ class ClassExtractor {
 }
 
 data class ClassInfo(val name: String, @JsonProperty("package") val fromPackage: String)
-
-data class Package(val name: String, val children: List<Package>, val classes: List<String>)
