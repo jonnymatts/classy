@@ -13,7 +13,7 @@ class PackagesTest {
                                     mutableListOf(
                                             Package("classy",
                                                     mutableListOf(),
-                                                    mutableListOf("Blah")
+                                                    mutableListOf(ClassInfo("Blah", "com.jonnymatts.classy"))
                                             )
                                     ),
                                     mutableListOf()
@@ -52,7 +52,7 @@ class PackagesTest {
                                         mutableListOf(
                                                 Package("classy",
                                                         mutableListOf(),
-                                                        mutableListOf("Blah", "Foo")
+                                                        mutableListOf(ClassInfo("Blah", "com.jonnymatts.classy"), ClassInfo("Foo", "com.jonnymatts.classy"))
                                                 )
                                         ),
                                         mutableListOf()
@@ -78,10 +78,10 @@ class PackagesTest {
                                         mutableListOf(
                                                 Package("classy",
                                                         mutableListOf(),
-                                                        mutableListOf("Blah")
+                                                        mutableListOf(ClassInfo("Blah", "com.jonnymatts.classy"))
                                                 )
                                         ),
-                                        mutableListOf("Foo")
+                                        mutableListOf(ClassInfo("Foo", "com.jonnymatts"))
                                 )
                         ),
                         mutableListOf()
@@ -93,17 +93,17 @@ class PackagesTest {
     fun getClassesForPackageReturnsListOfClassNamesIfPresent() {
         val packages: Packages = Packages(mutableListOf(defaultPackage))
 
-        val got: List<String> = packages.getClassesForPackage("com.jonnymatts.classy")
+        val got: List<ClassInfo> = packages.getClassesForPackage("com.jonnymatts.classy")
 
         assertThat(got).hasSize(1)
-        assertThat(got).containsExactly("Blah")
+        assertThat(got).containsExactly(ClassInfo("Blah", "com.jonnymatts.classy"))
     }
 
     @Test
     fun getClassesForPackageReturnsEmptyListIfPackageIsNotFound() {
         val packages: Packages = Packages(mutableListOf(defaultPackage))
 
-        val got: List<String> = packages.getClassesForPackage("com.blah")
+        val got: List<ClassInfo> = packages.getClassesForPackage("com.blah")
 
         assertThat(got).isEmpty()
     }
@@ -112,8 +112,20 @@ class PackagesTest {
     fun getClassesForPackageReturnsEmptyListIfNoClassesArePresentForPackage() {
         val packages: Packages = Packages(mutableListOf(defaultPackage))
 
-        val got: List<String> = packages.getClassesForPackage("com.jonnymatts")
+        val got: List<ClassInfo> = packages.getClassesForPackage("com.jonnymatts.classi")
 
         assertThat(got).isEmpty()
+    }
+
+    @Test
+    fun getClassesForPackageReturnsReturnsListOfClassNamesIfPackageIsTopLevelPackage() {
+        val packages: Packages = Packages(mutableListOf(defaultPackage))
+
+        packages.add("com/jonnymatts/Bar")
+
+        val got: List<ClassInfo> = packages.getClassesForPackage("com")
+
+        assertThat(got).hasSize(2)
+        assertThat(got).containsExactlyInAnyOrder(ClassInfo("Blah", "com.jonnymatts.classy"), ClassInfo("Bar", "com.jonnymatts"))
     }
 }

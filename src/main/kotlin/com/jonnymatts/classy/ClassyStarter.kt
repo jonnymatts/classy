@@ -9,10 +9,11 @@ fun main(args: Array<String>) {
     val packages: Packages = Packages()
     val nonDirectories = jarFile.entries().toList().filter { !it.isDirectory }
     val noInnerClasses = nonDirectories.filter { !it.name.contains("$") }
-    noInnerClasses.forEach { it -> packages.add(it.name) }
+    val metaInfRemoved = noInnerClasses.filter { !it.name.contains("META-INF") }
+    metaInfRemoved.forEach { it -> packages.add(it.name.removeSuffix(".class")) }
 
     val port: Int = System.getenv("CLASSY_PORT")?.toInt() ?: 8080
-    val pippo: Pippo = Pippo(PippoApplication(listOf(ClassInfo("Blah", "com.jonnymatts.classy")), Randomizer()))
+    val pippo: Pippo = Pippo(PippoApplication(packages, Randomizer()))
     pippo.server.settings.host("0.0.0.0")
     pippo.start(port)
     Log.info("Started server on port: $port")

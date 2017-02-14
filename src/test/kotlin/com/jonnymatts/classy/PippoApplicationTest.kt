@@ -3,6 +3,7 @@ package com.jonnymatts.classy
 import com.jayway.restassured.RestAssured
 import com.jayway.restassured.http.ContentType
 import org.hamcrest.Matchers.*
+import org.junit.Before
 import org.junit.ClassRule
 import org.junit.Test
 import ro.pippo.test.PippoRule
@@ -17,22 +18,44 @@ class PippoApplicationTest : PippoTest() {
             ClassInfo("Foo","com.jonnymatts.classy")
         )
 
+        val packageList: MutableList<Package> = mutableListOf()
+        val packages: Packages = Packages(packageList)
+
         @JvmField
         @ClassRule
-        val pippoRule = PippoRule(PippoApplication(loadedClasses, Randomizer()))
+        val pippoRule = PippoRule(PippoApplication(packages, Randomizer()))
+    }
+
+    @Before
+    fun setUp() {
+        packageList.clear()
     }
 
     @Test
     fun testRandomClass() {
+        packageList.add(
+                Package(
+                        "com",
+                        mutableListOf(
+                                Package("jonnymatts",
+                                        mutableListOf(),
+                                                mutableListOf(ClassInfo("Foo", "com.jonnymatts"))
+                                )
+                        ),
+                        mutableListOf()
+                )
+        )
+
         val pippoResponse = RestAssured.given()
                 .contentType(ContentType.JSON)
-                .param("package", "com.jonnymatts.classy")
+                .param("package", "com.jonnymatts")
                 .get("/randomClass")
+
         pippoResponse.then()
                 .statusCode(200)
                 .contentType(ContentType.JSON)
-                .body("package", equalTo("com.jonnymatts.classy"))
-                .body("name", isOneOf("Blah", "Foo"))
+                .body("package", equalTo("com.jonnymatts"))
+                .body("name", isOneOf("Foo"))
     }
 
     @Test
@@ -41,6 +64,7 @@ class PippoApplicationTest : PippoTest() {
                 .contentType(ContentType.JSON)
                 .param("package", "com.jonnymatts.classi")
                 .get("/randomClass")
+
         pippoResponse.then()
                 .statusCode(400)
                 .contentType(ContentType.JSON)
