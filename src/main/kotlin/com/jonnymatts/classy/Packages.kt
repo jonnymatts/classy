@@ -33,18 +33,15 @@ class Packages(val packages: MutableList<Package>) {
     }
 
     private fun findNearestMatchForPackageName(packageNames: List<String>): Package? {
-        fun findNearestMatchForPackageInternal(packagesLeft: List<String>, foundPackage: Package): Package {
-            val childPackages: List<Package> = foundPackage.children.filter { it.name == packagesLeft.first() }
-            if (childPackages.isEmpty()) return foundPackage
-            val childPackage: Package = childPackages.first()
-            if (packagesLeft.size == 1) return childPackage
-            return findNearestMatchForPackageInternal(packagesLeft.drop(1), childPackage)
-        }
+        if(packageNames.isEmpty()) return null
 
-        val topLevelPackages: List<Package> = packages.filter { it.name == packageNames.first() }
-        if (topLevelPackages.isEmpty()) return null
+        val topLevelPackage: Package? = packages.filter{it.name == packageNames.first()}.firstOrNull()
 
-        return findNearestMatchForPackageInternal(packageNames.drop(1), topLevelPackages.first())
+        return packageNames.drop(1).fold(topLevelPackage, {currentPackage, packageName ->
+            val foundPackage: Package? = currentPackage?.children?.filter { it.name == packageName }?.firstOrNull()
+            if(foundPackage == null) return currentPackage
+            foundPackage
+        })
     }
 
     fun getClassesForPackage(packageName: String): List<ClassInfo> {
